@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>sorry na pookie 🥺</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Gochi+Hand&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink: #ff5ca8;
+    --pink-soft: #ffd3e7;
+    --cream: #fff8ef;
+    --ink: #3d1130;
+    --yes: #7be04b;
+    --no: #ff4d4d;
+    --yellow: #ffde59;
+    --shadow: 4px 4px 0 var(--ink);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    font-family:'Fredoka', sans-serif;
+    color:var(--ink);
+    background: linear-gradient(160deg, var(--pink-soft) 0%, #ffb0d3 55%, #ff8cc0 100%);
+    overflow:hidden;
+    -webkit-user-select:none; user-select:none;
+  }
+
+  /* floating background emojis */
+  .floaty{
+    position:fixed; font-size:2rem; opacity:.35; pointer-events:none;
+    animation: drift linear infinite;
+    z-index:0;
+  }
+  @keyframes drift{
+    from{ transform: translateY(110vh) rotate(0deg); }
+    to{   transform: translateY(-15vh) rotate(360deg); }
+  }
+
+  .screen{
+    position:relative; z-index:2;
+    height:100dvh; display:none;
+    flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:24px; gap:18px;
+  }
+  .screen.active{ display:flex; }
+
+  .card{
+    background:var(--cream);
+    border:3px solid var(--ink);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+    padding:32px 26px;
+    max-width:520px; width:100%;
+    display:flex; flex-direction:column; align-items:center; gap:16px;
+  }
+
+  .sticker{
+    font-family:'Gochi Hand', cursive;
+    background:var(--yellow);
+    border:3px solid var(--ink);
+    border-radius:999px;
+    box-shadow:var(--shadow);
+    padding:6px 18px;
+    font-size:1rem;
+    transform:rotate(-3deg);
+  }
+
+  h1{ font-size:clamp(1.5rem, 6vw, 2.2rem); font-weight:700; line-height:1.25; }
+  .sub{ font-size:1.05rem; opacity:.85; }
+  .big-emoji{ font-size:4rem; animation:bounce 1.6s ease-in-out infinite; }
+  @keyframes bounce{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+  button{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600; font-size:1.1rem;
+    border:3px solid var(--ink);
+    border-radius:16px;
+    padding:14px 30px;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    transition: transform .12s ease, box-shadow .12s ease;
+    color:var(--ink);
+  }
+  button:active{ transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink); }
+  button:focus-visible{ outline:3px dashed var(--ink); outline-offset:3px; }
+
+  .btn-open{ background:var(--yellow); animation:wiggle 2.2s ease-in-out infinite; }
+  @keyframes wiggle{ 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg)} }
+
+  .btn-row{
+    display:flex; gap:20px; justify-content:center; align-items:center;
+    flex-wrap:wrap; min-height:120px; width:100%;
+  }
+  #yesBtn{ background:var(--yes); transition: transform .15s ease, font-size .2s ease, padding .2s ease; }
+  #noBtn{
+    background:var(--no); color:#fff;
+    position:relative; /* becomes fixed once it starts running */
+    transition: left .18s ease, top .18s ease;
+    touch-action:none;
+  }
+
+  .taunt{
+    min-height:1.6em;
+    font-family:'Gochi Hand', cursive;
+    font-size:1.25rem;
+    color:#b1004e;
+  }
+
+  .aura{
+    position:fixed; top:14px; left:50%; transform:translateX(-50%) rotate(-2deg);
+    font-family:'Gochi Hand', cursive;
+    background:#fff; border:3px solid var(--ink); border-radius:999px;
+    box-shadow:var(--shadow);
+    padding:4px 16px; font-size:.95rem; z-index:5;
+    display:none;
+  }
+
+  /* celebration */
+  #screen-yes .card{ background:#eaffe0; }
+  .confetti{
+    position:fixed; top:-5vh; font-size:1.6rem; pointer-events:none; z-index:10;
+    animation: fall linear forwards;
+  }
+  @keyframes fall{
+    to{ transform: translateY(115vh) rotate(720deg); }
+  }
+
+  .footer-note{
+    position:fixed; bottom:10px; left:0; right:0;
+    text-align:center; font-size:.8rem; opacity:.6; z-index:2;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .floaty, .big-emoji, .btn-open, .confetti{ animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="aura" id="aura">it student na tulog sa umaga, gising sa gabi: <span id="auraNum">-100</span> 📉</div>
+
+<!-- ══════════════════════════ SCREEN 1: intro ══════════════════════════ -->
+<section class="screen active" id="screen-intro">
+  <div class="card">
+    <div class="sticker">🚨 emergency suyo protocol 🚨</div>
+    <div class="big-emoji">🥺👉👈</div>
+    <h1 id="introTitle"></h1>
+    <p class="sub" id="introSub"></p>
+    <button class="btn-open" id="openBtn"></button>
+  </div>
+</section>
+
+<!-- ══════════════════════════ SCREEN 2: the question ══════════════════════════ -->
+<section class="screen" id="screen-question">
+  <div class="card">
+    <div class="big-emoji" id="qEmoji">🧎‍♂️</div>
+    <h1 id="questionText"></h1>
+    <p class="taunt" id="taunt"></p>
+    <div class="btn-row">
+      <button id="yesBtn"></button>
+      <button id="noBtn"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════ SCREEN 3: she said yes ══════════════════════════ -->
+<section class="screen" id="screen-yes">
+  <div class="card">
+    <div class="big-emoji">🎉😭🎉</div>
+    <h1 id="yesTitle"></h1>
+    <p class="sub" id="yesMsg"></p>
+    <div class="sticker" id="yesSticker"></div>
+    <button style="background:var(--yellow)" id="replayBtn">ulitin (for the plot) 🔁</button>
+  </div>
+</section>
+
+<div class="footer-note" id="footerNote"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   ✏️  CUSTOMIZE EVERYTHING HERE — edit the text, save, and refresh!
+   ═══════════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  herName: "Babe",                    // her name / pet name
+  yourName: "it student na tulog sa umaga, gising sa gabi",  // what she calls you (or your name)
+
+  introTitle: "wait lang, wag mo muna i-close 😭🙏",
+  introSub: "may sasabihin lang ako... 30 seconds lang promise",
+  openButton: "sige na, open mo 🥹",
+
+  question: "sorry na po... date tayo? 🥺",
+
+  // what the taunt text says every time she tries to press "No"
+  // (it escalates in order — add or edit as many as you want!)
+  taunts: [
+    "babe, wag ganon, chat is this real 💔",
+    "ouch, wag ganon huhu, fr fr 😭",
+    "aura ko, bumabagsak na po 📉",
+    "u see the floor, andon ako huhu 🧎‍♂️",
+    "libre kita potcor, gimbap, kahit 20 lang pera q �",
+    "u want samgyup? 🥩😭",
+    "isang chance na lang po 🙏🙏",
+    "sabi ng guardian angel q, dapat daw nice tau palagi 😔",
+    "grabe ka, pati button umiiwas sakin 💀",
+    "wala ka nang takas, YES na lang natitira HAHAHA"
+  ],
+
+  yesButton: "sige na nga 🙄💕",
+  noButton: "no ❌",
+
+  yesTitle: "LETS GOOOO 🥳",
+  yesMsg: "see you sa date natin!! on time ako promise — 30 minutes early pa nga, mag-aabang ako parang delivery rider 🛵💨",
+  yesSticker: "Sorry, Ms. Carylle Cariño, di na po mauulit, promise. 📸 screenshot mo to tas send mo sakin",
+
+  footer: "made with 100% pure guilt by",   // + yourName is added automatically
+
+  // after this many dodges, the No button gives up and turns into a Yes
+  noGivesUpAfter: 10
+};
+/* ═══════════════ end of customization — code below ═══════════════ */
+
+const $ = id => document.getElementById(id);
+
+// fill in the text
+$("introTitle").textContent = CONFIG.introTitle.replace("{name}", CONFIG.herName);
+$("introSub").textContent = CONFIG.introSub;
+$("openBtn").textContent = CONFIG.openButton;
+$("questionText").textContent = CONFIG.question;
+$("yesBtn").textContent = CONFIG.yesButton;
+$("noBtn").textContent = CONFIG.noButton;
+$("yesTitle").textContent = CONFIG.yesTitle;
+$("yesMsg").textContent = CONFIG.yesMsg;
+$("yesSticker").textContent = CONFIG.yesSticker;
+$("footerNote").textContent = CONFIG.footer + " " + CONFIG.yourName + " 💌";
+
+// floating background emojis
+const floatEmojis = ["🥺","😭","💔","🙏","💌","🧎","🛐","🫶"];
+for(let i=0;i<14;i++){
+  const f = document.createElement("div");
+  f.className = "floaty";
+  f.textContent = floatEmojis[i % floatEmojis.length];
+  f.style.left = Math.random()*95 + "vw";
+  f.style.animationDuration = (9 + Math.random()*10) + "s";
+  f.style.animationDelay = (-Math.random()*12) + "s";
+  document.body.appendChild(f);
+}
+
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+}
+
+$("openBtn").addEventListener("click", ()=>{
+  show("screen-question");
+  $("aura").style.display = "block";
+});
+
+// ───── the runaway NO button ─────
+const noBtn = $("noBtn");
+const yesBtn = $("yesBtn");
+let dodges = 0;
+let aura = -100;
+
+function dodge(){
+  dodges++;
+  aura -= Math.floor(80 + Math.random()*120);
+  $("auraNum").textContent = aura;
+
+  // escalate the taunt
+  const t = CONFIG.taunts[Math.min(dodges-1, CONFIG.taunts.length-1)];
+  $("taunt").textContent = t;
+
+  // yes button grows with every dodge
+  const scale = 1 + Math.min(dodges * 0.13, 1.4);
+  yesBtn.style.transform = "scale(" + scale + ")";
+
+  // rotate the kneeling emoji harder
+  $("qEmoji").style.transform = "rotate(" + (Math.random()*20-10) + "deg)";
+
+  if(dodges >= CONFIG.noGivesUpAfter){
+    // the No button surrenders
+    noBtn.textContent = "fine, YES 😔✌️";
+    noBtn.style.background = "var(--yes)";
+    noBtn.style.color = "var(--ink)";
+    noBtn.style.position = "relative";
+    noBtn.style.left = ""; noBtn.style.top = "";
+    noBtn.onclick = celebrate;
+    noBtn.onpointerenter = null;
+    noBtn.ontouchstart = null;
+    return;
+  }
+
+  // teleport somewhere random but always fully on screen
+  noBtn.style.position = "fixed";
+  const bw = noBtn.offsetWidth, bh = noBtn.offsetHeight;
+  const pad = 12;
+  const x = pad + Math.random() * (window.innerWidth  - bw - pad*2);
+  const y = pad + Math.random() * (window.innerHeight - bh - pad*2);
+  noBtn.style.left = x + "px";
+  noBtn.style.top  = y + "px";
+}
+
+noBtn.addEventListener("pointerenter", e=>{
+  if(e.pointerType === "mouse") dodge();
+});
+noBtn.addEventListener("touchstart", e=>{
+  e.preventDefault(); // block the tap from registering as a click
+  dodge();
+}, {passive:false});
+noBtn.addEventListener("click", e=>{
+  // desktop safety net: if she somehow clicks it, it still runs
+  if(dodges < CONFIG.noGivesUpAfter){ e.preventDefault(); dodge(); }
+});
+
+// ───── YES 🎉 ─────
+function celebrate(){
+  show("screen-yes");
+  $("aura").style.display = "none";
+  const confettiEmojis = ["💖","🎉","✨","🎊","💘","🥰","🫶","🌸"];
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduced) return;
+  let burst = 0;
+  const timer = setInterval(()=>{
+    for(let i=0;i<6;i++){
+      const c = document.createElement("div");
+      c.className = "confetti";
+      c.textContent = confettiEmojis[Math.floor(Math.random()*confettiEmojis.length)];
+      c.style.left = Math.random()*100 + "vw";
+      c.style.animationDuration = (2.5 + Math.random()*2.5) + "s";
+      document.body.appendChild(c);
+      setTimeout(()=>c.remove(), 6000);
+    }
+    if(++burst > 14) clearInterval(timer);
+  }, 220);
+}
+yesBtn.addEventListener("click", celebrate);
+
+$("replayBtn").addEventListener("click", ()=>{
+  dodges = 0; aura = -100;
+  $("auraNum").textContent = aura;
+  $("taunt").textContent = "";
+  yesBtn.style.transform = "";
+  noBtn.textContent = CONFIG.noButton;
+  noBtn.style = "";
+  noBtn.onclick = null;
+  show("screen-question");
+  $("aura").style.display = "block";
+});
+</script>
+</body>
+</html>
